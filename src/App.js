@@ -1,12 +1,13 @@
 import React from 'react';
 
-import './App.css';
+// import './App.css';
 
 function App() {
     return (
         <div className="App">
             <div className="container">
                 <h1>Kanban</h1>
+                <button type="button" className="btn btn-primary">Create Task</button>
                 <div className="row">
 
                     <div className="col-sm">
