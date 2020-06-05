@@ -5,24 +5,30 @@ import React, {useState} from 'react';
 function App() {
 
     const [isOpenCreateTaskForm, setIsOpenCreateTaskForm] = useState(false);
+    const [isActiveButtonTaskCreate, setisActiveButtonTaskCreate] = useState(false);
 
     const openCreateTaskForm = () => {
         setIsOpenCreateTaskForm(true);
-    }
+    };
+    const onTaskChange = (e) => {
+        setisActiveButtonTaskCreate(e.target.value.length > 4);
+    };
+
 
     return (
         <div className="App">
             <div className="container">
                 <h1>Kanban</h1>
 
-                {!isOpenCreateTaskForm && <button onClick={openCreateTaskForm} className="btn btn-primary">Create Task</button>}
+                {!isOpenCreateTaskForm &&
+                <button onClick={openCreateTaskForm} className="btn btn-primary">Create Task</button>}
                 {isOpenCreateTaskForm &&
                 <form>
                     <div className="form group">
-                        <label htmlFor="exampleInputEmail">Task</label>
-                        <input type="text" className='form-control'/>
+                        <input type="text" className='form-control' onChange={onTaskChange}/>
                     </div>
-                    <button type="submit" className="btn btn-primary">Submit</button>
+                    <button type="submit" className="btn btn-primary" disabled={!isActiveButtonTaskCreate}>Submit
+                    </button>
                 </form>
 
                 }
