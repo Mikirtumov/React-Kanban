@@ -1,17 +1,28 @@
 import React, {useState} from 'react';
 import Column from "./Column";
+import {v4 as uuidv4} from 'uuid';
 
-// import './App.css';
 
 const initialTodos = [
-    {id: 1, name: "create 1", status: 'todo', pryoryty: 1},
-    {id: 2, name: "create 2", status: 'progress', pryoryty: 2},
-    {id: 3, name: "create 3", status: 'review', pryoryty: 3},
-    {id: 4, name: "create 4", status: 'done', pryoryty: 4},
-    {id: 5, name: "create 5", status: 'done', pryoryty: 5},
+    {id: uuidv4(), name: "create 1 ", status: 'todo', priority: 1},
+    {id: uuidv4(), name: "create 2 ", status: 'progress', priority: 2},
+    {id: uuidv4(), name: "create 3 ", status: 'review', priority: 3},
+    {id: uuidv4(), name: "create 4 ", status: 'done', priority: 2},
+    {id: uuidv4(), name: "create 5 ", status: 'done', priority: 1},
+    {id: uuidv4(), name: "create 6 ", status: 'done', priority: 3},
+    {id: uuidv4(), name: "create 7 ", status: 'done', priority: 3},
+    {id: uuidv4(), name: "create 8 ", status: 'todo', priority: 2},
+    {id: uuidv4(), name: "create 9 ", status: 'todo', priority: 1},
 
 ];
 
+    const statuses = ['todo', 'progress', 'review', 'done'];
+
+const priorities = [
+    {id: 1, priority: 'High'},
+    {id: 2, priority: 'Medium'},
+    {id: 3, priority: 'Low'}
+]
 
 function App() {
 
@@ -19,6 +30,7 @@ function App() {
     const [isActiveButtonTaskCreate, setIsActiveButtonTaskCreate] = useState(false);
     const [taskInput, setTaskInput] = useState('');
     const [tasks, setTasks] = useState(initialTodos);
+    const [status, setStatus] = useState('');
 
     const openCreateTaskForm = () => {
         setIsOpenCreateTaskForm(true);
@@ -29,11 +41,9 @@ function App() {
     };
     const taskSubmit = (e) => {
         e.preventDefault();
-        console.log(taskInput);
+        setTasks([...tasks, {id: uuidv4(), name: taskInput, status: status, priority: 1}])
         taskReset();
-        // setTaskInput('');
-        // setIsOpenCreateTaskForm(false);
-        // setIsActiveButtonTaskCreate(false);
+
     };
     const taskReset = () => {
         setTaskInput('');
@@ -41,11 +51,49 @@ function App() {
         setIsActiveButtonTaskCreate(false);
     };
 
+    const changeStatus = ({id, direction}) => {
+        console.log(id, direction)
+
+        const updatedTasks = tasks.map(el => {
+            if (el.id === id) {
+                if (direction === 'left') {
+                    el.status = statuses[statuses.indexOf(el.status) - 1];
+                }
+                if (direction === 'right') {
+                    el.status = statuses[statuses.indexOf(el.status) + 1];
+                }
+                return el;
+            } else return el;
+
+        });
+        setTasks(updatedTasks);
+    }
+
+    const changePriority = ({id, direction}) => {
+        const updatedTasks = tasks.map(task => {
+            if(task.id === id){
+                if(direction === 'up'){
+                  return   {...task, priority: ++task.priority}
+                }
+                if(direction === 'down'){
+                    return   {...task, priority: --task.priority}
+                }
+            }return task
+
+        })
+        setTasks(updatedTasks);
+    }
+    const deleteTask = (task) => {
+        const updatedTasks = tasks.filter(obj => obj.id !== task.id);
+        setTasks(updatedTasks);
+    }
+
 
     return (
         <div className="App">
             <div className="container">
                 <h1>Kanban</h1>
+
 
                 {!isOpenCreateTaskForm &&
                 <button onClick={openCreateTaskForm} className="btn btn-primary">Create Task</button>}
@@ -54,6 +102,22 @@ function App() {
                     <div className="form group">
                         <input type="text" className='form-control' onChange={onTaskChange}/>
                     </div>
+
+                    <div className="input-group mb-3">
+                        <div className="input-group-prepend">
+                            <label className="input-group-text" htmlFor="inputGroupSelect01">Statuses:</label>
+                        </div>
+                        <select onChange={(e) => setStatus(e.target.value)} defaultValue="done" className="custom-select" id="inputGroupSelect01">
+                            {
+                                statuses.sort((a, b) => b - a)
+                                    .map(el =>
+                                    <option key={el} value={el}>{el}</option>
+                                )
+                            }
+
+                        </select>
+                    </div>
+
                     <button onClick={taskSubmit} type="submit" className="btn btn-primary"
                             disabled={!isActiveButtonTaskCreate}>Submit
                     </button>
@@ -64,59 +128,23 @@ function App() {
 
                 <div className="row">
 
-                    <div className="col-sm">
-                        <div className="card">
-                            <div className="card-header">
-                                <Column tasks={tasks} status={'todo'}/>
-                            </div>
-                            <div className="card-body">
-                                <h5 className="card-title">Special title treatment</h5>
-                                <p className="card-text">With supporting text below as a natural lead-in to additional
-                                    content.</p>
-                                <a href="#" className="btn btn-primary">Go somewhere</a>
-                            </div>
-                        </div>
+                    <div className='col-sm'>
 
+                        <Column tasks={tasks} status={'todo'} changeStatus={changeStatus} changePriority={changePriority} priorities={priorities} deleteTask={deleteTask}/>
                     </div>
-                    <div className="col-sm">
-                        <div className="card">
-                            <div className="card-header">
-                                <Column tasks={tasks} status={'progress'}/>
-                            </div>
-                            <div className="card-body">
-                                <h5 className="card-title">Special title treatment</h5>
-                                <p className="card-text">With supporting text below as a natural lead-in to additional
-                                    content.</p>
-                                <a href="#" className="btn btn-primary">Go somewhere</a>
-                            </div>
-                        </div>
+                    <div className='col-sm'>
+                        <Column tasks={tasks} status={'progress'} changeStatus={changeStatus} changePriority={changePriority} priorities={priorities} deleteTask={deleteTask}/>
                     </div>
-                    <div className="col-sm">
-                        <div className="card">
-                            <div className="card-header">
-                                <Column tasks={tasks} status={'review'}/>
-                            </div>
-                            <div className="card-body">
-                                <h5 className="card-title">Special title treatment</h5>
-                                <p className="card-text">With supporting text below as a natural lead-in to additional
-                                    content.</p>
-                                <a href="#" className="btn btn-primary">Go somewhere</a>
-                            </div>
-                        </div>
+                    <div className='col-sm'>
+                        <Column tasks={tasks} status={'review'} changeStatus={changeStatus} changePriority={changePriority} priorities={priorities} deleteTask={deleteTask}/>
                     </div>
-                    <div className="col-sm">
-                        <div className="card">
-                            <div className="card-header">
-                                <Column tasks={tasks} status={'done'}/>
-                            </div>
-                            <div className="card-body">
-                                <h5 className="card-title">Special title treatment</h5>
-                                <p className="card-text">With supporting text below as a natural lead-in to additional
-                                    content.</p>
-                                <a href="#" className="btn btn-primary">Go somewhere</a>
-                            </div>
-                        </div>
+                    <div className='col-sm'>
+                        <Column tasks={tasks} status={'done'} changeStatus={changeStatus} changePriority={changePriority} priorities={priorities} deleteTask={deleteTask}/>
                     </div>
+
+
+                    
+
                 </div>
             </div>
         </div>
